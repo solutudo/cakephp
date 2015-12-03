@@ -160,6 +160,15 @@ class ErrorHandler {
 			$request = Router::getRequest();
 			if ($request) {
 				$message .= "\nRequest URL: " . $request->here();
+				#mod blamoo@live.com
+				$message .= "\nForwarded-For: " . (isset($_SERVER["HTTP_X_FORWARDED_FOR"]) ? $_SERVER["HTTP_X_FORWARDED_FOR"] : '(None)'); #MOD
+				$message .= "\nReferer: " . (isset($_SERVER['HTTP_REFERER']) ? ("<a href=\"{$_SERVER['HTTP_REFERER']}\">{$_SERVER['HTTP_REFERER']}</a>") : '(None)'); #MOD
+				$message .= "\nUA: " . (isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '(None)'); #MOD
+				$message .= "\nMethod: " . (isset($_SERVER['REQUEST_METHOD']) ? $_SERVER['REQUEST_METHOD'] : '(None)'); #MOD
+				if (count($_POST) !== 0) {
+					$message .= "\nPost: <pre>" . var_export($_POST, true) . '</pre>'; #MOD
+				}
+				#endmod
 			}
 		}
 		$message .= "\nStack Trace:\n" . $exception->getTraceAsString();
@@ -229,6 +238,15 @@ class ErrorHandler {
 			return Debugger::getInstance()->outputError($data);
 		}
 		$message = $error . ' (' . $code . '): ' . $description . ' in [' . $file . ', line ' . $line . ']';
+		#mod blamoo@live.com
+		$message .= "\nForwarded-For: " . (isset($_SERVER["HTTP_X_FORWARDED_FOR"]) ? $_SERVER["HTTP_X_FORWARDED_FOR"] : '(None)'); #MOD
+		$message .= "\nReferer: " . (isset($_SERVER['HTTP_REFERER']) ? ("<a href=\"{$_SERVER['HTTP_REFERER']}\">{$_SERVER['HTTP_REFERER']}</a>") : '(None)'); #MOD
+		$message .= "\nUA: " . (isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '(None)'); #MOD
+		$message .= "\nMethod: " . (isset($_SERVER['REQUEST_METHOD']) ? $_SERVER['REQUEST_METHOD'] : '(None)'); #MOD
+		if (count($_POST) !== 0) {
+			$message .= "\nPost: <pre>" . var_export($_POST, true) . '</pre>'; #MOD
+		}
+		#endmod
 		if (!empty($errorConfig['trace'])) {
 			$trace = Debugger::trace(array('start' => 1, 'format' => 'log'));
 			$message .= "\nTrace:\n" . $trace . "\n";
