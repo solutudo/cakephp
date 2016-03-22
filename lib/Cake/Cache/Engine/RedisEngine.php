@@ -22,7 +22,7 @@
  * @package       Cake.Cache.Engine
  */
 class RedisEngine extends CacheEngine {
-
+	protected static $instances = array();
 /**
  * Redis wrapper.
  *
@@ -80,14 +80,21 @@ class RedisEngine extends CacheEngine {
  */
 	protected function _connect() {
 		try {
-			$this->_Redis = new Redis();
-			if (!empty($this->settings['unix_socket'])) {
-				$return = $this->_Redis->connect($this->settings['unix_socket']);
-			} elseif (empty($this->settings['persistent'])) {
-				$return = $this->_Redis->connect($this->settings['server'], $this->settings['port'], $this->settings['timeout']);
-			} else {
-				$persistentId = $this->settings['port'] . $this->settings['timeout'] . $this->settings['database'];
-				$return = $this->_Redis->pconnect($this->settings['server'], $this->settings['port'], $this->settings['timeout'], $persistentId);
+			$hash = "{$this->settings['server']}:{$this->settings['port']}";
+			if (!empty(self::$instances[$hash])) {
+				$return = $this->_Redis = self::$instances[$hash];
+			}
+			else {
+				$this->_Redis = new Redis();
+				self::$instances[$hash] = $this->_Redis;
+				if (!empty($this->settings['unix_socket'])) {
+					$return = $this->_Redis->connect($this->settings['unix_socket']);
+				} elseif (empty($this->settings['persistent'])) {
+					$return = $this->_Redis->connect($this->settings['server'], $this->settings['port'], $this->settings['timeout']);
+				} else {
+					$persistentId = $this->settings['port'] . $this->settings['timeout'] . $this->settings['database'];
+					$return = $this->_Redis->pconnect($this->settings['server'], $this->settings['port'], $this->settings['timeout'], $persistentId);
+				}
 			}
 		} catch (RedisException $e) {
 			$return = false;
@@ -98,6 +105,7 @@ class RedisEngine extends CacheEngine {
 		if ($this->settings['password'] && !$this->_Redis->auth($this->settings['password'])) {
 			return false;
 		}
+
 		return $this->_Redis->select($this->settings['database']);
 	}
 
