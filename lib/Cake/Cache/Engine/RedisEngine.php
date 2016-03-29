@@ -80,7 +80,7 @@ class RedisEngine extends CacheEngine {
  */
 	protected function _connect() {
 		try {
-			$hash = "{$this->settings['server']}:{$this->settings['port']}";
+			$hash = "{$this->settings['server']}:{$this->settings['port']}:{$this->settings['database']}";
 			if (!empty(self::$instances[$hash])) {
 				$return = $this->_Redis = self::$instances[$hash];
 			}
