@@ -361,6 +361,10 @@ class DboSource extends DataSource {
 				) {
 					return $data;
 				}
+				if (is_a($data, 'DateTime')) {
+					return $this->_connection->quote($data->format('Y-m-d H:i:s'));
+				}
+
 				return $this->_connection->quote($data);
 		}
 	}
